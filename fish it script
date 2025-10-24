@@ -1,0 +1,94 @@
+-- Fish It OP GUI Script Upgrade by StarHUB 
+-- Kompatibel dengan Xeno Executor
+
+local plr = game.Players.LocalPlayer
+local char = plr.Character or plr.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+local remote = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Fish")
+
+-- GUI Setup
+local gui = Instance.new("ScreenGui", game.CoreGui)
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 240, 0, 280)
+frame.Position = UDim2.new(0, 50, 0, 100)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.Active = true
+frame.Draggable = true
+
+local function createBtn(text, y)
+    local btn = Instance.new("TextButton", frame)
+    btn.Size = UDim2.new(0, 220, 0, 40)
+    btn.Position = UDim2.new(0, 10, 0, y)
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 18
+    return btn
+end
+
+local autoFish = false
+local autoSell = false
+local autoUpgrade = false
+
+local fishBtn = createBtn("Auto Fish: OFF", 10)
+local sellBtn = createBtn("Auto Sell: OFF", 60)
+local upgradeBtn = createBtn("Auto Upgrade: OFF", 110)
+local boostBtn = createBtn("Speed + Jump Boost", 160)
+local tpBtn = createBtn("Teleport Spot", 210)
+
+fishBtn.MouseButton1Click:Connect(function()
+    autoFish = not autoFish
+    fishBtn.Text = autoFish and "Auto Fish: ON" or "Auto Fish: OFF"
+    if autoFish then
+        spawn(function()
+            while autoFish do
+                remote:FireServer("Cast")
+                wait(0.2)
+                remote:FireServer("Reel")
+                wait(0.5)
+            end
+        end)
+    end
+end)
+
+sellBtn.MouseButton1Click:Connect(function()
+    autoSell = not autoSell
+    sellBtn.Text = autoSell and "Auto Sell: ON" or "Auto Sell: OFF"
+    if autoSell then
+        spawn(function()
+            while autoSell do
+                local sellZone = workspace:FindFirstChild("SellZone")
+                if sellZone then
+                    hrp.CFrame = sellZone.CFrame + Vector3.new(0, 3, 0)
+                end
+                wait(5)
+            end
+        end)
+    end
+end)
+
+upgradeBtn.MouseButton1Click:Connect(function()
+    autoUpgrade = not autoUpgrade
+    upgradeBtn.Text = autoUpgrade and "Auto Upgrade: ON" or "Auto Upgrade: OFF"
+    if autoUpgrade then
+        spawn(function()
+            while autoUpgrade do
+                local upgradeRemote = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes"):FindFirstChild("UpgradeRod")
+                if upgradeRemote then
+                    upgradeRemote:FireServer()
+                end
+                wait(15)
+            end
+        end)
+    end
+end)
+
+boostBtn.MouseButton1Click:Connect(function()
+    char.Humanoid.WalkSpeed = 120
+    char.Humanoid.JumpPower = 100
+end)
+
+tpBtn.MouseButton1Click:Connect(function()
+    hrp.CFrame = CFrame.new(1000, 50, -500)
+end)
