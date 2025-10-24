@@ -1,6 +1,4 @@
--- Fish It OP GUI Script Upgrade by StarHUB 
--- Kompatibel dengan Xeno Executor
-
+loadstring([[
 local plr = game.Players.LocalPlayer
 local char = plr.Character or plr.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
@@ -9,33 +7,61 @@ local remote = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):Wait
 -- GUI Setup
 local gui = Instance.new("ScreenGui", game.CoreGui)
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 240, 0, 280)
+frame.Size = UDim2.new(0, 260, 0, 360)
 frame.Position = UDim2.new(0, 50, 0, 100)
-frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
+frame.BackgroundTransparency = 0.1
+frame.ClipsDescendants = true
+frame.Name = "FishItOP"
+
+local uiCorner = Instance.new("UICorner", frame)
+uiCorner.CornerRadius = UDim.new(0, 12)
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "🎣 Fish It OP GUI"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
 
 local function createBtn(text, y)
     local btn = Instance.new("TextButton", frame)
     btn.Size = UDim2.new(0, 220, 0, 40)
-    btn.Position = UDim2.new(0, 10, 0, y)
+    btn.Position = UDim2.new(0, 20, 0, y)
     btn.Text = text
     btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.SourceSansBold
+    btn.Font = Enum.Font.GothamBold
     btn.TextSize = 18
+
+    local corner = Instance.new("UICorner", btn)
+    corner.CornerRadius = UDim.new(0, 8)
+
+    btn.MouseEnter:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    end)
+    btn.MouseLeave:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    end)
+
     return btn
 end
 
 local autoFish = false
 local autoSell = false
 local autoUpgrade = false
+local autoBlatant = false
 
-local fishBtn = createBtn("Auto Fish: OFF", 10)
-local sellBtn = createBtn("Auto Sell: OFF", 60)
-local upgradeBtn = createBtn("Auto Upgrade: OFF", 110)
-local boostBtn = createBtn("Speed + Jump Boost", 160)
-local tpBtn = createBtn("Teleport Spot", 210)
+local fishBtn = createBtn("Auto Fish: OFF", 50)
+local sellBtn = createBtn("Auto Sell: OFF", 100)
+local upgradeBtn = createBtn("Auto Upgrade: OFF", 150)
+local boostBtn = createBtn("Speed Boost", 200)
+local tpBtn = createBtn("Teleport Spot", 250)
+local blatantBtn = createBtn("Blatant Fishing: OFF", 300)
 
 fishBtn.MouseButton1Click:Connect(function()
     autoFish = not autoFish
@@ -43,10 +69,12 @@ fishBtn.MouseButton1Click:Connect(function()
     if autoFish then
         spawn(function()
             while autoFish do
-                remote:FireServer("Cast")
-                wait(0.2)
-                remote:FireServer("Reel")
-                wait(0.5)
+                pcall(function()
+                    remote:FireServer("Cast")
+                    wait(0.2)
+                    remote:FireServer("Reel")
+                end)
+                wait(0.8)
             end
         end)
     end
@@ -85,10 +113,29 @@ upgradeBtn.MouseButton1Click:Connect(function()
 end)
 
 boostBtn.MouseButton1Click:Connect(function()
-    char.Humanoid.WalkSpeed = 120
-    char.Humanoid.JumpPower = 100
+    if char:FindFirstChild("Humanoid") then
+        char.Humanoid.WalkSpeed = 120
+        char.Humanoid.JumpPower = 100
+    end
 end)
 
 tpBtn.MouseButton1Click:Connect(function()
     hrp.CFrame = CFrame.new(1000, 50, -500)
 end)
+
+blatantBtn.MouseButton1Click:Connect(function()
+    autoBlatant = not autoBlatant
+    blatantBtn.Text = autoBlatant and "Blatant Fishing: ON" or "Blatant Fishing: OFF"
+    if autoBlatant then
+        spawn(function()
+            while autoBlatant do
+                for i = 1, 5 do
+                    remote:FireServer("Cast")
+                    remote:FireServer("Reel")
+                end
+                wait(0.2)
+            end
+        end)
+    end
+end)
+]])()
